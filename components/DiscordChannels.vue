@@ -2,49 +2,42 @@
   <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 grow">
     <div class="mt-8 bg-white overflow-hidden shadow sm:rounded-lg p-6 w-full">
       <strong>Which channel?</strong>:
-      <ul>
-        <li v-for="channel in channels" :key="channel.id">
-          <nuxt-link :to="'/guild/' + channel.id" class="flex">
-            <button class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded">
-              {{ channel.name }}
-            </button>
-          </nuxt-link>
-        </li>
-      </ul>
+      <div v-if="channels != null">
+        <b-row cols="1" cols-sm="1" cols-md="3" cols-lg="5">
+          <b-col v-for="channel in channels" :key="channel.id" class="p-2">
+            <b-button variant="primary" style="width: 100%; height: 100%;" @click="selectChannel(channel.id)">
+              #{{ channel.name }}
+            </b-button>
+          </b-col>
+        </b-row>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'DiscordChannels',
 
-  data () {
-    return {
-      channels: []
-    }
-  },
-
   computed: {
-    // ...mapState({ channels: 'channels' }),
-    ...mapGetters(['isAuthenticated', 'loggedInUser'])
+    ...mapState({
+      channels: 'channels'
+    })
   },
-
-  watch: {
-    emitErrors (newValue, oldValue) {
-      console.log(`Updating from ${oldValue} to ${newValue}`)
-    }
-  },
-
-  async mounted () {
-    const guildID = this.$attrs.guild
-
-    const selectGuildResp = await this.socket.emitAsync('selectGuild', guildID)
-    console.log('selectGuildResp', selectGuildResp)
-    if (selectGuildResp.status === 'ok') {
-      this.channels = selectGuildResp.channels
+  methods: {
+    async selectChannel (channelId) {
+      this.socket = this.$nuxtSocket({ persist: 'defaultLabel' })
+      await this.$store.dispatch(
+        '$nuxtSocket/emit',
+        {
+          label: 'defaultLabel',
+          evt: 'selectChannel',
+          msg: channelId,
+          emitTimeout: 5000
+        }
+      )
     }
   }
 }

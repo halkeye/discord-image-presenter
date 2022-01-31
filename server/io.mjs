@@ -47,6 +47,17 @@ export default function (socket, _io) {
   }
   console.log('connected', user)
 
+  socket.emit('SET_GUILDS', null)
+  socket.emit('SET_CHANNELS', null)
+  socket.emit('SET_MESSAGES', null)
+
+  const getGuild = async (guildId) => {
+    if (!user.guilds[guildId]) {
+      throw new Error(`No access to guild ${guildId}`)
+    }
+    return client.guilds.fetch(guildId).catch(nullNotFound)
+  }
+
   return Object.freeze({
     async login (token) {
       console.log('login', token)
@@ -96,41 +107,63 @@ export default function (socket, _io) {
         console.log('selectGuild.waiting for ready')
         await sleep()
       }
-      console.log('selectGuild.user', user)
-      if (!user.guilds[guildId]) {
-        throw new Error(`No access to guild ${guildId}`)
-      }
-      const guild = await client.guilds.fetch(guildId).catch(nullNotFound)
+      console.log('selectGuild.user', guildId, user)
+      const guild = await getGuild(guildId)
       if (!guild) {
         throw new Error(`Invalid Guild ID ${guildId}`)
       }
       user.selectedGuild = guildId
       const member = await guild.members.fetch(user.memberId)
+      if (!member) {
+        throw new Error(`Can't access this guild ${guild}`)
+      }
 
-      const channels = await Promise.all(
-        guild.channels.cache.map(channel => channel.permissionsFor(member).has(Permissions.FLAGS.READ_MESSAGE_HISTORY))
-      )
-      socket.emit('SET_CHANNELS', channels.map(c => ({ id: c.id, name: c.name })))
+      const channels = guild.channels.cache
+        .filter(channel => channel.viewable)
+        .filter(channel => channel.isText())
+        .filter(channel => channel.permissionsFor(member).has(Permissions.FLAGS.READ_MESSAGE_HISTORY))
+
+      socket.emit('SET_CHANNELS', channels.map(c => ({
+        id: c.id,
+        name: c.name,
+        nsfw: c.nsfw,
+        topic: c.topic
+      })))
       return { status: 'ok' }
     },
-    selectChannel (channelId) {
-      try {
-        console.log('selecChannel.user', user)
-        const guild = client.guilds.cache.find(guild => guild.id === user.selectedGuild)
-        if (!guild) {
-          throw new Error(`Invalid Guild ID ${user.selectedGuild}`)
-        }
-        const channel = guild.channels.cache.find(channel => channel.id === channelId)
-        if (!channel) {
-          throw new Error(`Invalid Channel ID ${channelId}`)
-        }
-        return {
-          status: 'ok',
-          messages: []
-        }
-      } catch (err) {
-        console.error(err)
-        return { status: 'err', error: err }
+    async selectChannel (channelId) {
+      console.log('selecChannel.user', channelId, user)
+      const guild = await getGuild(user.selectedGuild)
+      if (!guild) {
+        throw new Error(`Invalid Guild ID ${user.selectedGuild}`)
+      }
+      const member = await guild.members.fetch(user.memberId)
+      if (!member) {
+        throw new Error(`Can't access this guild ${guild}`)
+      }
+      const channel = await guild.channels.fetch(channelId)
+      if (!channel) {
+        throw new Error(`Invalid Channel ID ${channelId}`)
+      }
+      const hasPermission = channel.permissionsFor(member).has(Permissions.FLAGS.READ_MESSAGE_HISTORY)
+      if (!hasPermission) {
+        throw new Error('User cant read')
+      }
+      let messages = await channel.messages.fetch()
+      messages = messages.filter(m => m.attachments.size)
+
+      socket.emit('SET_MESSAGES', messages.map(m => ({
+        id: m.id,
+        createdTimestamp: m.createdTimestamp,
+        author: m.author.username,
+        content: m.content,
+        attachments: Array.from(m.attachments.values())
+          .filter(a => a.contentType.startsWith('image/'))
+          .map(a => a.url)
+        // reactions: m.reactions
+      })))
+      return {
+        status: 'ok'
       }
     }
   })

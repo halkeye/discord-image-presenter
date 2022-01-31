@@ -65,7 +65,7 @@ export default {
       name: 'main',
       default: true,
       vuex: {
-        mutations: ['SET_GUILDS', 'SET_INVITE_URL', 'SET_CHANNELS'],
+        mutations: ['SET_GUILDS', 'SET_INVITE_URL', 'SET_CHANNELS', 'SET_MESSAGES'],
         actions: ['login']
       }
     }]
