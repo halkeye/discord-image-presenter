@@ -34,24 +34,37 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import NuxtLogo from '~/components/NuxtLogo'
 
 export default {
   name: 'NavBar',
-  components: {
-    NuxtLogo
-  },
   computed: {
     ...mapGetters(['isAuthenticated', 'loggedInUser'])
+  },
+  /* Move this to a ShowUsername and Logout component */
+  mounted () {
+    this.socket = this.$nuxtSocket({ persist: 'defaultLabel' })
+    if (this.$store.getters.isAuthenticated) {
+      this.$store.dispatch(
+        '$nuxtSocket/emit',
+        {
+          label: 'defaultLabel',
+          evt: 'login',
+          msg: this.$auth.strategy.token.get(),
+          emitTimeout: 5000
+        }
+      ).catch((err) => {
+        console.log('login error')
+        console.error(err)
+        throw err
+      })
+    }
   },
   methods: {
     async logout () {
       await this.$auth.logout()
     },
     async login () {
-      await this.$auth.loginWith('discord', {
-        scope: ['guilds', 'guilds.members.read', 'bot', 'messages.read']
-      })
+      await this.$auth.loginWith('discord', { scope: ['guilds'] })
     }
   }
 }

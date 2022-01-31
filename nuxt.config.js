@@ -4,7 +4,7 @@ export default {
     title: 'discord-image-presenter',
     meta: [
       { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' },
       { hid: 'description', name: 'description', content: '' },
       { name: 'format-detection', content: 'telephone=no' }
     ],
@@ -34,6 +34,7 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    'bootstrap-vue/nuxt',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
@@ -61,7 +62,12 @@ export default {
 
   io: {
     sockets: [{
-      name: 'main'
+      name: 'main',
+      default: true,
+      vuex: {
+        mutations: ['SET_GUILDS', 'SET_INVITE_URL', 'SET_CHANNELS'],
+        actions: ['login']
+      }
     }]
   },
 
@@ -74,11 +80,6 @@ export default {
       }
     }
   },
-
-  // serverMiddleware: [
-  //  '~/api/logger',
-  //  { path: '/api', handler: '~/api/rest.js' }
-  // ],
 
   router: {
     middleware: ['auth']

@@ -41,24 +41,6 @@ export default {
   async mounted () {
     const guildID = this.$attrs.guild
 
-    this.socket = this.$nuxtSocket({ })
-    this.socket.emitAsync = function (ev, ...args) {
-      return new Promise(function (resolve, reject) {
-        args.push(arg1 => resolve(arg1))
-        this.socket.emit(ev, ...args)
-      }.bind(this))
-    }.bind(this)
-
-    this.socket.onAny((eventName, ...args) => {
-      console.log('a', eventName, args)
-    })
-
-    if (!this.isAuthenticated) {
-      return
-    }
-
-    const loginResp = await this.socket.emitAsync('login', this.$auth.strategy.token.get())
-    console.log('loginResp', loginResp)
     const selectGuildResp = await this.socket.emitAsync('selectGuild', guildID)
     console.log('selectGuildResp', selectGuildResp)
     if (selectGuildResp.status === 'ok') {

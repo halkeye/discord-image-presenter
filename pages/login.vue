@@ -3,16 +3,9 @@
 </template>
 
 <script>
-import DangerNotification from '~/components/DangerNotification'
-
 export default {
   name: 'LoginPage',
-
-  components: {
-    DangerNotification
-  },
-
-  // middleware: 'guest',
+  middleware: 'guest',
 
   data () {
     return {
