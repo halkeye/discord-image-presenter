@@ -43,17 +43,8 @@ export default {
     })
   },
   methods: {
-    async selectGuild (guildId) {
-      this.socket = this.$nuxtSocket({ persist: 'defaultLabel' })
-      await this.$store.dispatch(
-        '$nuxtSocket/emit',
-        {
-          label: 'defaultLabel',
-          evt: 'selectGuild',
-          msg: guildId,
-          emitTimeout: 5000
-        }
-      )
+    selectGuild (guildId) {
+      this.$store.dispatch('selectGuild', guildId)
     }
   }
 }

@@ -53,18 +53,6 @@ export default {
     },
     formatTime (timestamp) {
       return new Date(timestamp).toLocaleString()
-    },
-    async selectChannel (channelId) {
-      this.socket = this.$nuxtSocket({ persist: 'defaultLabel' })
-      await this.$store.dispatch(
-        '$nuxtSocket/emit',
-        {
-          label: 'defaultLabel',
-          evt: 'selectChannel',
-          msg: channelId,
-          emitTimeout: 5000
-        }
-      )
     }
   }
 }

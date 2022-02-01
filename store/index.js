@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'
+import connection from '~/plugins/socket.io.js'
 
 export default {
   getters: {
@@ -15,16 +15,11 @@ export default {
       channels: null,
       messages: null,
       emitErrors: {},
+      socketCalls: [],
       inviteUrl: ''
     }
   },
   mutations: {
-    '$nuxtSocket/SET_EMIT_ERRORS' (state, { label, emitEvt, err }) {
-      state.emitErrors[emitEvt] = (state.emitErrors[emitEvt] || []).concat({
-        guid: uuidv4(),
-        ...err
-      })
-    },
     SET_CHANNELS (state, data) {
       state.channels = data ? [...data] : null
     },
@@ -36,8 +31,34 @@ export default {
     },
     SET_INVITE_URL (state, data) {
       state.inviteUrl = data
+    },
+    RECORD_SOCKET_CALL (state, data) {
+      state.socketCalls = [...state.socketCalls, data]
     }
   },
   actions: {
+    login () {
+      connection.emit('login', this.$auth.strategy.token.get())
+    },
+    selectGuild ({ commit }, guildId) {
+      commit('RECORD_SOCKET_CALL', ['selectGuild', guildId])
+      connection.emit('selectGuild', guildId)
+    },
+    selectChannel ({ commit }, channelId) {
+      commit('RECORD_SOCKET_CALL', ['selectChannel', channelId])
+      connection.emit('selectChannel', channelId)
+    },
+    asyncEmit (_, context) {
+      if (!context.eventName) {
+        throw new Error('No eventName in asyncEmit invocation!')
+      }
+
+      const eventName = context.eventName
+      const socket = window.$nuxt.$root.mainSocket
+      return new Promise(function (resolve) {
+        socket.emit(eventName, context)
+        socket.once(eventName, resolve)
+      })
+    }
   }
 }

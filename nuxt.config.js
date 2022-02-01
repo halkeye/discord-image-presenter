@@ -3,6 +3,7 @@ export default {
     host: '0',
     port: 3000
   },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'discord-image-presenter',
@@ -44,7 +45,7 @@ export default {
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
     '@nuxtjs/auth-next',
-    'nuxt-socket-io'
+    '~/modules/io.mjs'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -62,17 +63,6 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  },
-
-  io: {
-    sockets: [{
-      name: 'main',
-      default: true,
-      vuex: {
-        mutations: ['SET_GUILDS', 'SET_INVITE_URL', 'SET_CHANNELS', 'SET_MESSAGES'],
-        actions: ['login']
-      }
-    }]
   },
 
   auth: {

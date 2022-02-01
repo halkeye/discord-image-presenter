@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'NavBar',
@@ -42,24 +42,14 @@ export default {
   },
   /* Move this to a ShowUsername and Logout component */
   mounted () {
-    this.socket = this.$nuxtSocket({ persist: 'defaultLabel' })
     if (this.$store.getters.isAuthenticated) {
-      this.$store.dispatch(
-        '$nuxtSocket/emit',
-        {
-          label: 'defaultLabel',
-          evt: 'login',
-          msg: this.$auth.strategy.token.get(),
-          emitTimeout: 5000
-        }
-      ).catch((err) => {
-        console.log('login error')
-        console.error(err)
-        throw err
-      })
+      this.reportLogin()
     }
   },
   methods: {
+    ...mapActions({
+      reportLogin: 'login'
+    }),
     async logout () {
       await this.$auth.logout()
     },
