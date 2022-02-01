@@ -1,7 +1,11 @@
 <template>
-  <div class="bg-gray-100 min-h-screen">
+  <div>
     <NavBar />
-    <Nuxt />
+    <div class="d-flex justify-content-center align-items-center min-vh-100 min-vw-100">
+      <div class="shadow-lg p-3 mb-5 bg-white rounded" style="width: 90%">
+        <Nuxt />
+      </div>
+    </div>
   </div>
 </template>
 
