@@ -10,12 +10,19 @@ module.exports = {
   },
   extends: [
     '@nuxtjs',
+    'plugin:import/recommended',
     'plugin:nuxt/recommended'
   ],
   plugins: [
+    'import'
   ],
-  // add your custom rules here
-  rules: {},
+  settings: {
+    'import/resolver': 'nuxt'
+  },
+  rules: {
+    'import/extensions': ['error', 'ignorePackages', { js: 'never', vue: 'never', mjs: 'never' }],
+    'import/no-unresolved': [2, { }]
+  },
   overrides: [
     {
       files: ['layouts/default.vue'],
