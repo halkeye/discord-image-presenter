@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import connection from '~/plugins/socket.io.js'
+import connection from '~/plugins/socketio'
 
 export default {
   name: 'DefaultLayout',
