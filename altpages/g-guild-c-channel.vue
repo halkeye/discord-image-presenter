@@ -14,9 +14,6 @@ export default {
     ...mapState({
       messages: 'messages'
     })
-  },
-  mounted () {
-    this.$store.dispatch('selectChannel', this.$route.params.channel)
   }
 }
 </script>

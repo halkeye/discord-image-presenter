@@ -12,7 +12,8 @@ export default {
   auth: false,
   computed: {
     ...mapState({
-      guilds: 'guilds'
+      guilds: 'guilds',
+      inviteUrl: 'inviteUrl'
     })
   }
 }

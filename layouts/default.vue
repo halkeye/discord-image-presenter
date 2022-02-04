@@ -23,16 +23,12 @@ export default {
   },
   watch: {
     $route (to, from) {
-      /*
-      if (to.name === 'index') {
-        this.$store.dispatch('selectGuild', null)
-      } else if (to.name === 'guild') {
+      if (to.params.guild && !from.params.guild) {
         this.$store.dispatch('selectGuild', to.params.guild)
-      } else if (to.name === 'guild-channel' || to.name === 'guild-channel-images') {
-        this.$store.dispatch('selectGuild', to.params.guild)
+      }
+      if (to.params.channel && !from.params.channel) {
         this.$store.dispatch('selectChannel', to.params.channel)
       }
-      */
       console.log('watch-$route', to, from)
     },
     $auth (to, from) {
@@ -45,6 +41,15 @@ export default {
       this.$store.commit(eventName, ...args)
     })
     this.$root.mainSocket = connection
+    if (this.$auth.loggedIn) {
+      this.$store.dispatch('login')
+      if (this.$route.params.guild) {
+        this.$store.dispatch('selectGuild', this.$route.params.guild)
+      }
+      if (this.$route.params.channel) {
+        this.$store.dispatch('selectChannel', this.$route.params.channel)
+      }
+    }
   }
 }
 </script>

@@ -16,9 +16,6 @@ export default {
     ...mapState({
       channels: 'channels'
     })
-  },
-  mounted () {
-    this.$store.dispatch('selectGuild', this.$route.params.guild)
   }
 }
 </script>
