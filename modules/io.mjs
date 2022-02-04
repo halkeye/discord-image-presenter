@@ -1,5 +1,6 @@
 import socketIO from 'socket.io'
 import { Client, Intents } from 'discord.js'
+import QueueEventEmitter from 'queue-event-emitter'
 
 import { Connection } from '../models/connection.mjs'
 
@@ -34,6 +35,16 @@ export default function () {
         const onMessage = msg => user.onMessage(msg.guildId, msg.channelId, msg.id, msg)
         client.on('messageCreate', onMessage)
         client.on('messageUpdate', onMessage)
+
+        const queue = new QueueEventEmitter()
+        queue.on('login', (...args) => user.login(...args))
+        queue.on('selectGuild', (...args) => user.selectGuild(...args))
+        queue.on('selectChannel', (...args) => user.selectChannel(...args))
+
+        socket.onAny((eventName, ...args) => {
+          console.log('onAny', eventName, args)
+          queue.emit(eventName, ...args)
+        })
 
         console.log('a user connected')
         socket.on('disconnect', function () {

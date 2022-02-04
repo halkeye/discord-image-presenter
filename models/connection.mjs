@@ -32,24 +32,16 @@ export class Connection {
     this.discordSocket = discordSocket
     this.guilds = {}
 
-    socket.onAny((eventName, ...args) => {
-      console.log('onAny', eventName, args)
-    })
-
     socket.emit('SET_GUILDS', null)
     socket.emit('SET_CHANNELS', null)
     socket.emit('SET_MESSAGES', null)
-
-    socket.on('login', this.login.bind(this))
-    socket.on('selectGuild', this.selectGuild.bind(this))
-    socket.on('selectChannel', this.selectChannel.bind(this))
   }
 
   disconnect () {
     // unbind anything as needed
   }
 
-  onMessage (guildId, channelId, id, msg) {
+  onMessage (guildId, channelId, _id, msg) {
     if (!this.selectedGuildId) { return }
     if (guildId !== this.selectedGuildId) { return }
     if (channelId !== this.selectedChannelId) { return }
@@ -106,6 +98,11 @@ export class Connection {
   }
 
   async selectGuild (guildId) {
+    if (guildId === null) {
+      delete this.selectedGuild
+      return
+    }
+
     console.log('selectGuild.user', guildId, this.guilds)
     const guild = await this.getGuild(guildId)
     if (!guild) {

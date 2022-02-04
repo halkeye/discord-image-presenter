@@ -33,11 +33,13 @@ export default {
       state.inviteUrl = data
     },
     RECORD_SOCKET_CALL (state, data) {
+      console.log('RECORD_SOCKET_CALL', data)
       state.socketCalls = [...state.socketCalls, data]
     }
   },
   actions: {
-    login () {
+    login ({ commit }) {
+      commit('RECORD_SOCKET_CALL', ['login'])
       connection.emit('login', this.$auth.strategy.token.get())
     },
     selectGuild ({ commit }, guildId) {

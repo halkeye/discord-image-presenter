@@ -16,21 +16,20 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 export default {
   name: 'DiscordMessages',
+
+  props: {
+    messages: {
+      type: Array,
+      default: () => []
+    }
+  },
 
   data () {
     return {
       checked: {}
     }
-  },
-
-  computed: {
-    ...mapState({
-      messages: 'messages'
-    })
   },
 
   methods: {

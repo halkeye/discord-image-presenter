@@ -1,3 +1,5 @@
+import { sortRoutes } from '@nuxt/utils'
+
 export default {
   server: {
     host: '0',
@@ -74,6 +76,26 @@ export default {
   },
 
   router: {
+    extendRoutes (routes, resolve) {
+      routes.push({
+        name: 'g-guild-c-channel-images',
+        path: '/g/:guild/c/:channel/images/',
+        component: resolve('altpages/g-guild-c-channel-images.vue')
+      })
+      routes.push({
+        name: 'g-guild-c-channel',
+        path: '/g/:guild/c/:channel/',
+        component: resolve('altpages/g-guild-c-channel.vue')
+      })
+      routes.push({
+        name: 'g-guild',
+        path: '/g/:guild/',
+        component: resolve('altpages/g-guild.vue')
+      })
+      sortRoutes(routes)
+      console.log('routes', JSON.stringify(routes, null, 2))
+    },
+    trailingSlash: true,
     middleware: ['auth']
   }
 }
