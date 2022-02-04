@@ -18,19 +18,8 @@ export default function () {
     })
 
     client.on('disconnect', (e) => {
+      // TODO - process.exit(1)?
       console.log('disconnect', e)
-    })
-
-    client.on('guildCreate', (a) => {
-      console.log('guildCreate', a)
-    })
-
-    client.on('messageCreate', (a) => {
-      console.log('messageCreate', a)
-    })
-
-    client.on('messageUpdate', (a) => {
-      console.log('messageUpdate', a)
     })
 
     client.login(process.env.DISCORD_BOT_TOKEN)
@@ -41,9 +30,17 @@ export default function () {
       this.nuxt.hook('close', () => client.destroy())
       io.on('connection', function (socket) {
         const user = new Connection(client, socket)
+
+        const onMessage = msg => user.onMessage(msg.guildId, msg.channelId, msg.id, msg)
+        client.on('messageCreate', onMessage)
+        client.on('messageUpdate', onMessage)
+
         console.log('a user connected')
         socket.on('disconnect', function () {
           console.log('user disconnected')
+          client.off('messageCreate', onMessage)
+          client.off('messageUpdate', onMessage)
+          user.disconnect()
         })
         socket.emit('connection', { status: 'ok' })
         // import { v4 as uuidv4 } from 'uuid'

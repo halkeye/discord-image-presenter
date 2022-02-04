@@ -17,10 +17,20 @@ module.exports = {
     'import'
   ],
   settings: {
-    'import/resolver': 'nuxt'
+    'import/resolver': {
+      alias: {
+        map: [
+          ['~/*', './'],
+          ['@/*', './']
+        ],
+        extensions: ['.js', '.mjs', '.vue']
+      },
+      node: {
+        extensions: ['.js', '.mjs', '.vue']
+      }
+    }
   },
   rules: {
-    'import/extensions': ['error', 'ignorePackages', { js: 'never', vue: 'never', mjs: 'never' }],
     'import/no-unresolved': [2, { }]
   },
   overrides: [

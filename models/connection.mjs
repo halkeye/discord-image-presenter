@@ -13,6 +13,19 @@ const nullNotFound = (e) => {
   throw e
 }
 
+function _mapMessage (m) {
+  return {
+    id: m.id,
+    createdTimestamp: m.createdTimestamp,
+    author: m.author.username,
+    content: m.content,
+    attachments: Array.from(m.attachments.values())
+      .filter(a => a.contentType.startsWith('image/'))
+      .map(a => a.url)
+      // reactions: m.reactions
+  }
+}
+
 export class Connection {
   constructor (discordSocket, socket) {
     this.socket = socket
@@ -30,6 +43,21 @@ export class Connection {
     socket.on('login', this.login.bind(this))
     socket.on('selectGuild', this.selectGuild.bind(this))
     socket.on('selectChannel', this.selectChannel.bind(this))
+  }
+
+  disconnect () {
+    // unbind anything as needed
+  }
+
+  onMessage (guildId, channelId, id, msg) {
+    if (!this.selectedGuildId) { return }
+    if (guildId !== this.selectedGuildId) { return }
+    if (channelId !== this.selectedChannelId) { return }
+
+    this.socket.emit('UPDATE_MSG', _mapMessage(msg))
+    // CLIENT
+    // object of msg id to message
+    // computed list of messages sorted by msg.createdTimestamp
   }
 
   getGuild (guildId) {
@@ -83,7 +111,7 @@ export class Connection {
     if (!guild) {
       throw new Error(`Invalid Guild ID ${guildId}`)
     }
-    this.selectedGuild = guildId
+    this.selectedGuildId = guildId
     const member = await guild.members.fetch(this.memberId)
     if (!member) {
       throw new Error(`Can't access this guild ${guild}`)
@@ -105,9 +133,9 @@ export class Connection {
 
   async selectChannel (channelId) {
     console.log('selecChannel.user', channelId, this.guilds)
-    const guild = await this.getGuild(this.selectedGuild)
+    const guild = await this.getGuild(this.selectedGuildId)
     if (!guild) {
-      throw new Error(`Invalid Guild ID ${this.selectedGuild}`)
+      throw new Error(`Invalid Guild ID ${this.selectedGuildId}`)
     }
     const member = await guild.members.fetch(this.memberId)
     if (!member) {
@@ -121,19 +149,13 @@ export class Connection {
     if (!hasPermission) {
       throw new Error('User cant read')
     }
+
+    this.selectedChannelId = channelId
+
     let messages = await channel.messages.fetch()
     messages = messages.filter(m => m.attachments.size)
 
-    this.socket.emit('SET_MESSAGES', messages.map(m => ({
-      id: m.id,
-      createdTimestamp: m.createdTimestamp,
-      author: m.author.username,
-      content: m.content,
-      attachments: Array.from(m.attachments.values())
-        .filter(a => a.contentType.startsWith('image/'))
-        .map(a => a.url)
-      // reactions: m.reactions
-    })))
+    this.socket.emit('SET_MESSAGES', messages.map(m => _mapMessage(m)))
     return {
       status: 'ok'
     }
