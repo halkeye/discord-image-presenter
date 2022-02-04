@@ -1,5 +1,22 @@
-import axios from 'axios'
+import fetch from 'node-fetch'
 import { Permissions } from 'discord.js'
+
+function checkHttpStatus (res) {
+  if (!res.ok) {
+    throw new Error(res.statusText)
+  }
+  return res
+}
+
+function discordFetch (url, token) {
+  return fetch(url, {
+    headers: {
+      Authorization: token
+    }
+  }).then(checkHttpStatus).then(resp => resp.json()).catch((err) => {
+    throw new Error(`Unable to access ${url}: "${err}"`)
+  })
+}
 
 const nullNotFound = (e) => {
   // doesnt exist
@@ -27,10 +44,11 @@ function _mapMessage (m) {
 }
 
 export class Connection {
-  constructor (discordSocket, socket) {
+  constructor (discordSocket, socket, logger) {
     this.socket = socket
     this.discordSocket = discordSocket
     this.guilds = {}
+    this.logger = logger || console.log
 
     socket.emit('SET_GUILDS', null)
     socket.emit('SET_CHANNELS', null)
@@ -60,30 +78,16 @@ export class Connection {
   }
 
   async login (token) {
-    console.log('login', token)
+    this.logger('login', token)
 
-    this.socket.emit('SET_INVITE_URL', this.discordSocket.generateInvite({
-      permissions: [
-        Permissions.FLAGS.ADD_REACTIONS,
-        Permissions.FLAGS.READ_MESSAGE_HISTORY,
-        Permissions.FLAGS.VIEW_CHANNEL
-      ],
-      scopes: ['bot']
-    }))
-
-    const me = await axios.get('https://discord.com/api/users/@me', {
-      headers: {
-        Authorization: token
-      }
-    }).then(resp => resp.data)
+    const me = await discordFetch('https://discord.com/api/users/@me', token)
+    this.logger('me', me)
     this.memberId = me.id
 
-    const usersGuilds = await axios.get('https://discord.com/api/users/@me/guilds', {
-      headers: {
-        Authorization: token
-      }
-    })
-    const mutualGuilds = await this.discordSocket.guilds.fetch(usersGuilds.data.map(guild => guild.id)).catch(nullNotFound)
+    const usersGuilds = await discordFetch('https://discord.com/api/users/@me/guilds', token)
+
+    const mutualGuilds = await this.discordSocket.guilds.fetch(usersGuilds.map(guild => guild.id)).catch(nullNotFound)
+
     const subGuilds = mutualGuilds.map(guild => ({
       id: guild.id,
       name: guild.name,
@@ -103,7 +107,7 @@ export class Connection {
       return
     }
 
-    console.log('selectGuild.user', guildId, this.guilds)
+    this.logger('selectGuild.user', guildId, this.guilds)
     const guild = await this.getGuild(guildId)
     if (!guild) {
       throw new Error(`Invalid Guild ID ${guildId}`)
@@ -129,7 +133,7 @@ export class Connection {
   }
 
   async selectChannel (channelId) {
-    console.log('selecChannel.user', channelId, this.guilds)
+    this.logger('selecChannel.user', channelId, this.guilds)
     const guild = await this.getGuild(this.selectedGuildId)
     if (!guild) {
       throw new Error(`Invalid Guild ID ${this.selectedGuildId}`)

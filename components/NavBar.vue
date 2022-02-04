@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'NavBar',
@@ -29,15 +29,7 @@ export default {
     ...mapGetters(['isAuthenticated', 'loggedInUser'])
   },
   /* Move this to a ShowUsername and Logout component */
-  mounted () {
-    if (this.$store.getters.isAuthenticated) {
-      this.reportLogin()
-    }
-  },
   methods: {
-    ...mapActions({
-      reportLogin: 'login'
-    }),
     async logout () {
       await this.$auth.logout()
     },
