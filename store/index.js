@@ -7,13 +7,16 @@ export default {
     },
     loggedInUser (state) {
       return state.auth.user
+    },
+    messages (state) {
+      return Object.values(state.messages).sort((a, b) => a.createdTimestamp - b.createdTimestamp)
     }
   },
   state: () => {
     return {
       guilds: null,
       channels: null,
-      messages: null,
+      messages: {},
       emitErrors: {},
       socketCalls: [],
       inviteUrl: ''
@@ -27,7 +30,20 @@ export default {
       state.guilds = data ? [...data] : null
     },
     SET_MESSAGES (state, data) {
-      state.messages = data ? [...data] : null
+      if (data !== null) {
+        if (!Array.isArray(data)) {
+          data = data.reduce(function (prev, cur) {
+            prev[cur.id] = cur
+            return prev
+          }, {})
+        }
+        state.messages = { ...data }
+      } else {
+        state.messages = {}
+      }
+    },
+    UPDATE_MSG (state, data) {
+      state.messages = { ...state.messages, [data.id]: data }
     },
     SET_INVITE_URL (state, data) {
       state.inviteUrl = data

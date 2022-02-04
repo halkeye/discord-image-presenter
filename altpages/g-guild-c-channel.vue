@@ -5,13 +5,13 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'ChannelIndexPage',
   auth: true,
   computed: {
-    ...mapState({
+    ...mapGetters({
       messages: 'messages'
     })
   }
