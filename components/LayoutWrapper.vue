@@ -51,4 +51,3 @@ export default {
   }
 }
 </script>
-const IndexPage = { template: '<div>IndexPage</div>' }
