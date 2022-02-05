@@ -18,6 +18,10 @@ function discordFetch (url, token) {
   })
 }
 
+function validAttachment (a) {
+  return a.contentType.startsWith('image/')
+}
+
 const nullNotFound = (e) => {
   // doesnt exist
   if (e.httpStatus === 404) {
@@ -31,16 +35,16 @@ const nullNotFound = (e) => {
 }
 
 function _mapMessage (m) {
-  return {
-    id: m.id,
-    createdTimestamp: m.createdTimestamp,
-    author: m.author.username,
-    content: m.content,
-    attachments: Array.from(m.attachments.values())
-      .filter(a => a.contentType.startsWith('image/'))
-      .map(a => a.url)
+  return Array.from(m.attachments.entries())
+    .filter(([id, att]) => validAttachment(att))
+    .map(([id, att]) => ({
+      id: `${m.id}_${id}`,
+      createdTimestamp: m.createdTimestamp,
+      author: m.author.username,
+      content: m.content,
+      attachment: att.url
       // reactions: m.reactions
-  }
+    }))
 }
 
 export class Connection {
@@ -64,7 +68,7 @@ export class Connection {
     if (guildId !== this.selectedGuildId) { return }
     if (channelId !== this.selectedChannelId) { return }
 
-    this.socket.emit('UPDATE_MSG', _mapMessage(msg))
+    _mapMessage(msg).forEach(msg => this.socket.emit('UPDATE_MSG', msg))
     // CLIENT
     // object of msg id to message
     // computed list of messages sorted by msg.createdTimestamp
@@ -154,9 +158,9 @@ export class Connection {
     this.selectedChannelId = channelId
 
     let messages = await channel.messages.fetch()
-    messages = messages.filter(m => m.attachments.size)
+    messages = messages.filter(m => m.attachments.size && m.attachments.some(validAttachment))
 
-    this.socket.emit('SET_MESSAGES', messages.map(m => _mapMessage(m)))
+    this.socket.emit('SET_MESSAGES', messages.map(m => _mapMessage(m)).flat(1))
     return {
       status: 'ok'
     }

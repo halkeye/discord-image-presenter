@@ -2,7 +2,7 @@
   <div v-if="messages != null">
     <b-row cols="1" cols-sm="2" cols-md="4" cols-lg="6">
       <b-col v-for="msg in messages" :key="msg.id" :style="boxStyles(msg.id)" class="m-2 p-5" @click="toggle(msg.id)">
-        <img :src="msg.attachments[0]" style="height: 10em;">
+        <img :src="msg.attachment" style="height: 10em;">
         <blockquote>{{ msg.content }}</blockquote>
         <dd>By: {{ msg.author }}</dd>
         <dd>At: {{ formatTime(msg.createdTimestamp) }}</dd>

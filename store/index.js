@@ -10,24 +10,34 @@ export default {
     },
     messages (state) {
       return Object.values(state.messages).sort((a, b) => a.createdTimestamp - b.createdTimestamp)
+    },
+    currentGuild (state) {
+      if (!state.selectedGuildId) { return null }
+      return state.guilds.find(guild => guild.id === state.selectedGuildId)
+    },
+    currentChannel (state) {
+      if (!state.selectedChannelId) { return null }
+      return state.channels.find(channel => channel.id === state.selectedChannelId)
     }
   },
   state: () => {
     return {
-      guilds: null,
-      channels: null,
+      guilds: [],
+      channels: [],
       messages: {},
       emitErrors: {},
       socketCalls: [],
-      inviteUrl: ''
+      inviteUrl: '',
+      selectedGuildId: 0,
+      selectedChannelId: 0
     }
   },
   mutations: {
     SET_CHANNELS (state, data) {
-      state.channels = data ? [...data] : null
+      state.channels = data ? [...data] : []
     },
     SET_GUILDS (state, data) {
-      state.guilds = data ? [...data] : null
+      state.guilds = data ? [...data] : []
     },
     SET_MESSAGES (state, data) {
       if (data !== null) {
@@ -51,6 +61,12 @@ export default {
     RECORD_SOCKET_CALL (state, data) {
       console.log('RECORD_SOCKET_CALL', data)
       state.socketCalls = [...state.socketCalls, data]
+    },
+    SELECT_CHANNEL (state, data) {
+      state.selectedChannelId = data
+    },
+    SELECT_GUILD (state, data) {
+      state.selectedGuildId = data
     }
   },
   actions: {

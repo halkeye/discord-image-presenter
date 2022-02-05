@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <LayoutWrapper>
     <NavBar />
     <div class="d-flex justify-content-center align-items-center min-vh-100 min-vw-100">
       <div class="shadow-lg p-3 mb-5 bg-white rounded" style="width: 90%">
@@ -7,49 +7,18 @@
         <Nuxt />
       </div>
     </div>
-  </div>
+  </LayoutWrapper>
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import connection from '~/plugins/socketio'
 
 export default {
-  name: 'DefaultLayout',
+  name: 'LayoutDefault',
   computed: {
     ...mapState({
       emitErrors: 'emitErrors'
     })
-  },
-  watch: {
-    $route (to, from) {
-      if (to.params.guild && !from.params.guild) {
-        this.$store.dispatch('selectGuild', to.params.guild)
-      }
-      if (to.params.channel && !from.params.channel) {
-        this.$store.dispatch('selectChannel', to.params.channel)
-      }
-      console.log('watch-$route', to, from)
-    },
-    $auth (to, from) {
-      console.log('watch-$auth', to, from)
-    }
-  },
-  mounted () {
-    connection.onAny((eventName, ...args) => {
-      console.log('onAny', eventName, args)
-      this.$store.commit(eventName, ...args)
-    })
-    this.$root.mainSocket = connection
-    if (this.$auth.loggedIn) {
-      this.$store.dispatch('login')
-      if (this.$route.params.guild) {
-        this.$store.dispatch('selectGuild', this.$route.params.guild)
-      }
-      if (this.$route.params.channel) {
-        this.$store.dispatch('selectChannel', this.$route.params.channel)
-      }
-    }
   }
 }
 </script>

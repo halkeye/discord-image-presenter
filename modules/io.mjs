@@ -1,6 +1,7 @@
 import socketIO from 'socket.io'
 import { Client, Intents, Permissions } from 'discord.js'
 import QueueEventEmitter from 'queue-event-emitter'
+import { v4 as uuidv4 } from 'uuid'
 
 import { Connection } from '../models/connection.mjs'
 
@@ -53,10 +54,21 @@ export default function () {
         client.on('messageCreate', onMessage)
         client.on('messageUpdate', onMessage)
 
-        const queue = new QueueEventEmitter()
-        queue.on('login', (...args) => user.login(...args))
-        queue.on('selectGuild', (...args) => user.selectGuild(...args))
-        queue.on('selectChannel', (...args) => user.selectChannel(...args))
+        const queue = new QueueEventEmitter();
+
+        ['login', 'selectGuild', 'selectChannel'].forEach((funcName) => {
+          queue.on(funcName, async (...args) => {
+            try {
+              return await user[funcName](...args)
+            } catch (e) {
+              console.error(e)
+              socket.emit('REPORT_ERROR', {
+                id: uuidv4(),
+                ...e
+              })
+            }
+          })
+        })
 
         socket.onAny((eventName, ...args) => {
           logger('onAny', eventName, args)
@@ -70,7 +82,6 @@ export default function () {
           user.disconnect()
         })
         socket.emit('connection', { status: 'ok' })
-        // import { v4 as uuidv4 } from 'uuid'
 
         socket.emit('SET_INVITE_URL', client.generateInvite({
           permissions: [

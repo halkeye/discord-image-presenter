@@ -41,22 +41,23 @@ test('new message emits UPDATE_MSG', (t) => {
   t.context.connection.selectedChannelId = t.context.channelId
 
   t.context.connection.onMessage(t.context.guildId, t.context.channelId, t.context.messageId, {
-    id: t.context.messageId,
+    id: 'messageid',
     createdTimestamp: 0,
     author: { username: 'halkeye' },
     content: 'message',
-    attachments: new Set([{
+    attachments: new Map([['attachmentid', {
+      id: 'attachmentid',
       contentType: 'image/png',
       url: 'https://example.com/path/to/image.png'
-    }])
+    }]])
   })
   t.deepEqual(t.context.socket.emit.getCalls().map(c => c.args), [
     ['UPDATE_MSG', {
-      attachments: ['https://example.com/path/to/image.png'],
+      attachment: 'https://example.com/path/to/image.png',
       author: 'halkeye',
       content: 'message',
       createdTimestamp: 0,
-      id: t.context.messageId
+      id: 'messageid_attachmentid'
     }]
   ])
 })
