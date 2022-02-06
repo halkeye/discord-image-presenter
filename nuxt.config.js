@@ -89,9 +89,9 @@ export default {
         component: resolve('altpages/g-guild-c-channel-images.vue')
       })
       routes.push({
-        name: 'g-guild-c-channel',
+        name: 'select-messages',
         path: '/g/:guild/c/:channel/',
-        component: resolve('altpages/g-guild-c-channel.vue')
+        component: resolve('altpages/select-messages.vue')
       })
       routes.push({
         name: 'g-guild',
