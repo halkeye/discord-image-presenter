@@ -37,6 +37,9 @@ export default {
         this.$store.commit(eventName, ...args)
       }
     })
+    connection.on('disconnect', () => {
+      window.location.refresh()
+    })
     this.$root.mainSocket = connection
     // TODO - on disconnect refresh?
     console.log('params', this.$route.params)
