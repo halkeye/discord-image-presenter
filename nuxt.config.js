@@ -66,6 +66,12 @@ export default {
   },
 
   auth: {
+    redirect: {
+      login: '/login/',
+      logout: '/',
+      callback: '/login/',
+      home: '/'
+    },
     strategies: {
       discord: {
         scope: ['email', 'identify', 'guilds'],
