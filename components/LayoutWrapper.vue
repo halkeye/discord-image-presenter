@@ -42,7 +42,6 @@ export default {
     })
     this.$root.mainSocket = connection
     // TODO - on disconnect refresh?
-    console.log('params', this.$route.params)
     if (this.$auth.loggedIn) {
       this.$store.dispatch('login')
       if (this.$route.params.guild) {
