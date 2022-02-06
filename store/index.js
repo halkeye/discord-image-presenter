@@ -1,19 +1,30 @@
+import Fifo from 'localstorage-fifo'
 import connection from '~/plugins/socketio'
 
 export default {
   getters: {
+    enabledMessageCollection () {
+      console.log('enabledMessageCollection')
+      return new Fifo({ namespace: 'em' })
+    },
     isAuthenticated (state) {
       return state.auth.loggedIn
     },
     loggedInUser (state) {
       return state.auth.user
     },
-    messages (state) {
-      return Object.values(state.messages).sort((a, b) => a.createdTimestamp - b.createdTimestamp)
+    messages (state, getters) {
+      const collection = getters.enabledMessageCollection
+      return Object.values(state.messages)
+        .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+        .map(m => ({ ...m, authorized: collection.get(`m:${m.id}`) }))
+    },
+    enabledMessages (_state, getters) {
+      return getters.messages.filter(m => m.authorized)
     },
     currentGuild (state) {
       if (!state.selectedGuildId) { return null }
-      return state.guilds.find(guild => guild.id === state.selectedGuildId) || {}
+      return state.guilds.find(guild => guild.id === state.selectedGuildId)
     },
     currentChannel (state) {
       if (!state.selectedChannelId) { return null }
@@ -73,6 +84,14 @@ export default {
     }
   },
   actions: {
+    unauthorizeMessage ({ commit, state, getters }, id) {
+      getters.enabledMessageCollection.remove(`m:${id}`)
+      commit('UPDATE_MSG', { ...state.messages[id], authorized: false })
+    },
+    authorizeMessage ({ commit, state, getters }, id) {
+      getters.enabledMessageCollection.set(`m:${id}`, true)
+      commit('UPDATE_MSG', { ...state.messages[id], authorized: true })
+    },
     login ({ dispatch }) {
       dispatch('asyncEmit', ['login', this.$auth.strategy.token.get()])
     },
