@@ -26,7 +26,8 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    { src: '~/plugins/vuex-persist', ssr: false }
+    // { src: '~/plugins/vuex-persist', ssr: false },
+    { src: '~/plugins/multiTabState.client.js', ssr: false }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

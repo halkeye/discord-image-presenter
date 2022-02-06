@@ -23,7 +23,7 @@ export default {
   methods: {
     present () {
       const href = this.$router.resolve({ name: 'g-guild-c-channel-images', params: this.$route.params }).href
-      window.open(href, `guild_${this.$route.params.guild}`, 'location=no,menubar=no,resizable=yes,scrollbars=no,status=no,titlebar=yes,toolbar=no')
+      window.open(href, `guild_${this.$route.params.guild}`, 'popup=yes')
     }
   }
 }

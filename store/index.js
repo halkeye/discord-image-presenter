@@ -14,7 +14,7 @@ export default {
         .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
         .map(m => ({ ...m, authorized: !!state.messageApprovals[m.id] }))
     },
-    enabledMessages (_state, getters) {
+    authorizedMessages (_state, getters) {
       return getters.messages.filter(m => m.authorized)
     },
     currentGuild (state) {

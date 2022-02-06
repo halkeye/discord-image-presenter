@@ -1,6 +1,7 @@
 <template>
   <VueSlickCarousel
     v-if="messages && messages.length"
+    ref="carousel"
     :arrows="true"
     :dots="false"
     :adaptive-height="true"
@@ -10,6 +11,7 @@
   >
     <div v-for="message in messages" :key="message.id" :style="styleFor(message)" class="att-container vh-100" />
   </VueSlickCarousel>
+  <b-spinner v-else label="Loading" />
 </template>
 
 <script>
@@ -27,7 +29,14 @@ export default {
   },
   layout: 'empty',
   computed: {
-    ...mapGetters({ messages: 'messages' })
+    ...mapGetters({ messages: 'authorizedMessages' })
+  },
+  watch: {
+    messages () {
+      if (this.$refs.carousel) {
+        this.$refs.carousel.play()
+      }
+    }
   },
   methods: {
     styleFor (msg) {
@@ -47,7 +56,9 @@ body {
   overflow: hidden
 }
 
+/*
 .slick-slide:not(.slick-active) .att-container {
   display: none !important;
 }
+*/
 </style>
