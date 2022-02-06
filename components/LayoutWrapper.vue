@@ -32,11 +32,14 @@ export default {
   },
   mounted () {
     connection.onAny((eventName, ...args) => {
-      console.log('onAny', eventName, args)
-      this.$store.commit(eventName, ...args)
+      console.log('onAny', eventName, ...args)
+      if (!eventName.startsWith('RESPONSE_')) {
+        this.$store.commit(eventName, ...args)
+      }
     })
     this.$root.mainSocket = connection
     // TODO - on disconnect refresh?
+    console.log('params', this.$route.params)
     if (this.$auth.loggedIn) {
       this.$store.dispatch('login')
       if (this.$route.params.guild) {

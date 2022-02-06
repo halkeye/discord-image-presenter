@@ -13,10 +13,8 @@ export default {
     }
   },
 
-  created () {
-    if (!this.$auth.loggedIn) {
-      this.$auth.loginWith('discord')
-    }
+  mounted () {
+    this.$auth.loginWith('discord')
   },
 
   methods: {

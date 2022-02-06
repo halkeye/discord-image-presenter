@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div v-if="currentGuild">
     <b-button variant="primary" @click="present">
       Present
     </b-button>
     <DiscordMessages :messages="messages" />
-    <pre>{{ JSON.stringify(currentGuild, null, 2) }}</pre>
   </div>
+  <b-spinner v-else label="Loading" />
 </template>
 
 <script>

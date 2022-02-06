@@ -13,7 +13,7 @@ export default {
     },
     currentGuild (state) {
       if (!state.selectedGuildId) { return null }
-      return state.guilds.find(guild => guild.id === state.selectedGuildId)
+      return state.guilds.find(guild => guild.id === state.selectedGuildId) || {}
     },
     currentChannel (state) {
       if (!state.selectedChannelId) { return null }
@@ -25,7 +25,7 @@ export default {
       guilds: [],
       channels: [],
       messages: {},
-      emitErrors: {},
+      emitErrors: [],
       socketCalls: [],
       inviteUrl: '',
       selectedGuildId: 0,
@@ -62,6 +62,9 @@ export default {
       console.log('RECORD_SOCKET_CALL', data)
       state.socketCalls = [...state.socketCalls, data]
     },
+    REPORT_ERROR (state, data) {
+      state.emitErrors = [...state.emitErrors, data]
+    },
     SELECT_CHANNEL (state, data) {
       state.selectedChannelId = data
     },
@@ -70,28 +73,23 @@ export default {
     }
   },
   actions: {
-    login ({ commit }) {
-      commit('RECORD_SOCKET_CALL', ['login'])
-      connection.emit('login', this.$auth.strategy.token.get())
+    login ({ dispatch }) {
+      dispatch('asyncEmit', ['login', this.$auth.strategy.token.get()])
     },
-    selectGuild ({ commit }, guildId) {
-      commit('RECORD_SOCKET_CALL', ['selectGuild', guildId])
-      connection.emit('selectGuild', guildId)
+    getGuilds ({ dispatch }) {
+      dispatch('asyncEmit', ['getGuilds'])
     },
-    selectChannel ({ commit }, channelId) {
-      commit('RECORD_SOCKET_CALL', ['selectChannel', channelId])
-      connection.emit('selectChannel', channelId)
+    selectGuild ({ dispatch }, guildId) {
+      dispatch('asyncEmit', ['selectGuild', guildId])
     },
-    asyncEmit (_, context) {
-      if (!context.eventName) {
-        throw new Error('No eventName in asyncEmit invocation!')
-      }
-
-      const eventName = context.eventName
-      const socket = window.$nuxt.$root.mainSocket
+    selectChannel ({ dispatch }, channelId) {
+      dispatch('asyncEmit', ['selectChannel', channelId])
+    },
+    asyncEmit ({ commit }, [eventName, ...args]) {
+      commit('RECORD_SOCKET_CALL', [eventName, ...args])
       return new Promise(function (resolve) {
-        socket.emit(eventName, context)
-        socket.once(eventName, resolve)
+        connection.emit(eventName, ...args)
+        connection.once('RESPONSE_' + eventName, resolve)
       })
     }
   }

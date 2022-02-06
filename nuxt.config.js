@@ -98,6 +98,11 @@ export default {
         path: '/g/:guild/',
         component: resolve('altpages/g-guild.vue')
       })
+      routes.push({
+        name: 'select-a-guild',
+        path: '/g',
+        component: resolve('altpages/select-a-guild.vue')
+      })
       sortRoutes(routes)
       console.log('routes', JSON.stringify(routes, null, 2))
     },

@@ -59,12 +59,17 @@ export default function () {
         ['login', 'selectGuild', 'selectChannel'].forEach((funcName) => {
           queue.on(funcName, async (...args) => {
             try {
-              return await user[funcName](...args)
-            } catch (e) {
-              console.error(e)
+              const resp = await user[funcName](...args)
+              if (resp) {
+                socket.emit('RESPONSE_' + funcName, resp)
+              }
+            } catch (err) {
+              if (err) {
+                console.error(`${funcName} error handling`, err)
+              }
               socket.emit('REPORT_ERROR', {
                 id: uuidv4(),
-                ...e
+                ...JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
               })
             }
           })

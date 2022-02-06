@@ -2,10 +2,10 @@
   <b-navbar toggleable="lg" type="dark" variant="info">
     <b-navbar-brand>
       <nuxt-link to="/">
-        <NuxtLogo style="height: 25px" />
+        <img src="/android-chrome-512x512.png" width="30" height="30" class="d-inline-block align-top" alt="">
       </nuxt-link>
     </b-navbar-brand>
-    <b-navbar-nav>
+    <b-navbar-nav class="ml-auto">
       <b-nav-text v-if="isAuthenticated">
         <b-button @click="logout">
           Logout as {{ loggedInUser.username }}
