@@ -1,23 +1,18 @@
-import Fifo from 'localstorage-fifo'
+import Vue from 'vue'
 import connection from '~/plugins/socketio'
 
 export default {
   getters: {
-    enabledMessageCollection () {
-      console.log('enabledMessageCollection')
-      return new Fifo({ namespace: 'em' })
-    },
     isAuthenticated (state) {
       return state.auth.loggedIn
     },
     loggedInUser (state) {
       return state.auth.user
     },
-    messages (state, getters) {
-      const collection = getters.enabledMessageCollection
+    messages (state) {
       return Object.values(state.messages)
         .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
-        .map(m => ({ ...m, authorized: collection.get(`m:${m.id}`) }))
+        .map(m => ({ ...m, authorized: !!state.messageApprovals[m.id] }))
     },
     enabledMessages (_state, getters) {
       return getters.messages.filter(m => m.authorized)
@@ -34,6 +29,7 @@ export default {
   state: () => {
     return {
       guilds: [],
+      messageApprovals: {},
       channels: [],
       messages: {},
       emitErrors: [],
@@ -52,13 +48,10 @@ export default {
     },
     SET_MESSAGES (state, data) {
       if (data !== null) {
-        if (!Array.isArray(data)) {
-          data = data.reduce(function (prev, cur) {
-            prev[cur.id] = cur
-            return prev
-          }, {})
-        }
-        state.messages = { ...data }
+        state.messages = Object.values(data).reduce(function (prev, m) {
+          prev[m.id] = m
+          return prev
+        }, {})
       } else {
         state.messages = {}
       }
@@ -70,7 +63,6 @@ export default {
       state.inviteUrl = data
     },
     RECORD_SOCKET_CALL (state, data) {
-      console.log('RECORD_SOCKET_CALL', data)
       state.socketCalls = [...state.socketCalls, data]
     },
     REPORT_ERROR (state, data) {
@@ -81,16 +73,21 @@ export default {
     },
     SELECT_GUILD (state, data) {
       state.selectedGuildId = data
+    },
+    SET_APPROVAL (state, data) {
+      if (data.approved) {
+        Vue.set(state.messageApprovals, data.id, true)
+      } else {
+        Vue.delete(state.messageApprovals, data.id)
+      }
     }
   },
   actions: {
-    unauthorizeMessage ({ commit, state, getters }, id) {
-      getters.enabledMessageCollection.remove(`m:${id}`)
-      commit('UPDATE_MSG', { ...state.messages[id], authorized: false })
+    unauthorizeMessage ({ commit }, id) {
+      commit('SET_APPROVAL', { approved: false, id })
     },
-    authorizeMessage ({ commit, state, getters }, id) {
-      getters.enabledMessageCollection.set(`m:${id}`, true)
-      commit('UPDATE_MSG', { ...state.messages[id], authorized: true })
+    authorizeMessage ({ commit }, id) {
+      commit('SET_APPROVAL', { approved: true, id })
     },
     login ({ dispatch }) {
       dispatch('asyncEmit', ['login', this.$auth.strategy.token.get()])

@@ -3,7 +3,7 @@
     <b-row cols="1" cols-sm="2" cols-md="4" cols-lg="6">
       <b-col v-for="msg in messages" :key="msg.id" :style="boxStyles(msg)" class="m-2 p-3" @click="toggle(msg)">
         <div :style="imgStyles(msg.attachment)" />
-        <b-form-checkbox v-model="msg.authorized" name="check-button" switch>
+        <b-form-checkbox v-model="msg.authorized" name="check-button" switch @change="toggle(msg)">
           Approved
         </b-form-checkbox>
         <dd>By: {{ msg.author }}</dd>
@@ -28,12 +28,6 @@ export default {
     }
   },
 
-  data () {
-    return {
-      checked: {}
-    }
-  },
-
   methods: {
     boxStyles (msg) {
       return {
@@ -52,7 +46,7 @@ export default {
         backgroundImage: `url(${url})`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'contain',
-        backgroundPosition: 'center'
+        backgroundPosition: 'bottom'
       }
     },
 
