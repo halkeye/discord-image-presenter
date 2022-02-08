@@ -42,7 +42,7 @@
     "vue-server-renderer": "^2.6.14",
     "vue-template-compiler": "^2.6.14",
     "vuex-multi-tab-state": "^1.0.17",
-    "webpack": "^4.46.0"
+    "webpack": "^5.68.0"
   },
   "devDependencies": {
     "@ava/babel": "^2.0.0",
