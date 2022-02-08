@@ -41,6 +41,7 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     'bootstrap-vue/nuxt',
+    '@nuxtjs/sentry',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
@@ -48,6 +49,16 @@ export default {
     '@nuxtjs/auth-next',
     '~/modules/io.mjs'
   ],
+
+  sentry: {
+    dsn: 'https://f8c9ee607ed543a5acfcc818690f79ff@o76673.ingest.sentry.io/6192282', // Enter your project's DSN here
+    // Additional Module Options go here
+    // https://sentry.nuxtjs.org/sentry/options
+    config: {
+      // Add native Sentry config here
+      // https://docs.sentry.io/platforms/javascript/guides/vue/configuration/options/
+    }
+  },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
