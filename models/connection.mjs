@@ -88,9 +88,12 @@ export class Connection {
     this.logger('me', me)
     this.memberId = me.id
 
-    const usersGuilds = await discordFetch('https://discord.com/api/users/@me/guilds', token)
+    const usersGuilds = (await discordFetch('https://discord.com/api/users/@me/guilds', token)).reduce(function (prev, cur) {
+      prev[cur.id] = cur
+      return prev
+    }, {})
 
-    const mutualGuilds = await this.discordSocket.guilds.fetch(usersGuilds.map(guild => guild.id)).catch(nullNotFound)
+    const mutualGuilds = await this.discordSocket.guilds.fetch(Object.keys(usersGuilds)).then(guilds => guilds.filter(g => usersGuilds[g.id])).catch(nullNotFound)
 
     const subGuilds = mutualGuilds.map(guild => ({
       id: guild.id,
