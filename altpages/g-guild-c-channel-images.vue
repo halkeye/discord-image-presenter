@@ -86,7 +86,7 @@ body {
 }
 .flip-card {
   height: 100vh !important;
-  background-color: transparent;
+  background-color: white;
   border: 1px solid #f1f1f1;
   perspective: 1000px;
 }
