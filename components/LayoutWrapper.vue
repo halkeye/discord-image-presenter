@@ -38,10 +38,9 @@ export default {
       }
     })
     connection.on('disconnect', () => {
-      window.location.refresh()
+      window.location.reload()
     })
     this.$root.mainSocket = connection
-    // TODO - on disconnect refresh?
     if (this.$auth.loggedIn) {
       this.$store.dispatch('login')
       if (this.$route.params.guild) {
