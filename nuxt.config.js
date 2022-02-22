@@ -116,7 +116,6 @@ export default {
         component: resolve('altpages/select-a-guild.vue')
       })
       sortRoutes(routes)
-      console.log('routes', JSON.stringify(routes, null, 2))
     },
     trailingSlash: true,
     middleware: ['auth']
