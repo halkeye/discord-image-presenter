@@ -62,7 +62,7 @@
     "jsdom": "^19.0.0",
     "jsdom-global": "^3.0.2",
     "lint-staged": "^12.3.3",
-    "postcss": "^8.4.6",
+    "postcss": "^8.4.8",
     "require-extension-hooks": "^0.3.3",
     "require-extension-hooks-babel": "^1.0.0",
     "require-extension-hooks-vue": "^2.0.0",
